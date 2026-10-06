@@ -289,16 +289,6 @@ The automated test suite provides coverage across:
 
 ---
 
-## 🗺️ Roadmap
-
-Future enhancements planned for this project:
-- [ ] **Docker Containerization**: Add a `Dockerfile` and `docker-compose.yml` to containerize the FastAPI backend and PostgreSQL database for streamlined development and deployment.
-- [ ] **Database Migrations with Alembic**: Integrate Alembic for tracking, versioning, and managing database schema evolutions.
-- [ ] **Pagination, Filtering & Search**: Add query parameters to the todo endpoints for page limits, task filtering by completion status, and search by title keywords.
-- [ ] **Token Revocation & Refresh Tokens**: Introduce refresh token rotation and token blacklisting for enhanced session lifecycle management.
-- [ ] **Email Verification & Password Reset**: Implement asynchronous email confirmation and secure reset tokens for user onboarding and recovery.
-
----
 
 ## 📦 Tech Stack
 - **Framework**: [FastAPI](https://fastapi.tiangolo.com/)
