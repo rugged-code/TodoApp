@@ -3,11 +3,13 @@
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Neon](https://img.shields.io/badge/Neon-00E599?style=for-the-badge&logo=neon&logoColor=black)](https://neon.tech/)
+[![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://render.com/)
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
 [![Pydantic](https://img.shields.io/badge/Pydantic-E92063?style=for-the-badge&logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
 [![pytest](https://img.shields.io/badge/pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)](https://docs.pytest.org/)
 
-A full-stack FastAPI Todo application demonstrating REST API development, JWT/OAuth2 authentication, role-based access control, relational database modeling with SQLAlchemy and PostgreSQL, Pydantic request validation, and automated testing with pytest.
+A full-stack FastAPI Todo application demonstrating REST API development, JWT/OAuth2 authentication, role-based access control, relational database modeling with SQLAlchemy and PostgreSQL (hosted on Neon), Pydantic request validation, and automated testing with pytest. Deployed on Render.
 
 ---
 
@@ -63,7 +65,7 @@ The application follows a clean, modular architecture separating API endpoints, 
 ```text
 Client (Browser / REST Client)
   ↓
-FastAPI Application
+FastAPI Application (Deployed on Render)
   ├── Routers (auth, todos, users, admin)
   ├── Authentication / JWT (python-jose, passlib)
   ├── Dependency Injection (get_db, get_current_user)
@@ -71,7 +73,7 @@ FastAPI Application
   ↓
 SQLAlchemy ORM (declarative models & sessions)
   ↓
-PostgreSQL Database
+PostgreSQL Database (Hosted on Neon)
 ```
 
 ---
@@ -95,7 +97,7 @@ Security is integrated directly into the request lifecycle using FastAPI depende
 ```text
 TodoApp/
 │
-├── database.py              # SQLAlchemy database engine and SessionLocal setup
+├── database.py              # SQLAlchemy database engine and SessionLocal setup (reads DATABASE_URL)
 ├── main.py                  # FastAPI application entrypoint, router mounting, static files
 ├── models.py                # SQLAlchemy ORM models (Users, Todos)
 ├── requirements.txt         # Project dependencies
@@ -216,7 +218,7 @@ Throughout the design and implementation of this application, I gained hands-on 
 - **Dependency Injection**: Utilizing FastAPI's dependency injection system (`Depends`) to manage database session scopes and enforce authentication across endpoints.
 - **JWT & OAuth2 Security**: Implementing secure token-based authentication workflows, including credential hashing with Bcrypt, access token issuance, and claim verification.
 - **Role-Based Access Control (RBAC)**: Managing user authorization and protecting privileged operations based on user roles.
-- **SQLAlchemy ORM & PostgreSQL**: Defining relational database models, managing one-to-many relationships (User to Todos), and working with PostgreSQL database drivers.
+- **SQLAlchemy ORM & Cloud PostgreSQL**: Defining relational database models, managing one-to-many relationships (User to Todos), and working with cloud-hosted PostgreSQL instances on Neon via `psycopg`.
 - **Pydantic Validation**: Writing strict request models with field validation to ensure incoming data meets structural and semantic requirements.
 - **Automated Testing with pytest**: Structuring unit and integration tests using FastAPI's `TestClient`, creating database fixtures with automatic cleanup, and employing `dependency_overrides` for isolated testing against an independent test database.
 
@@ -226,7 +228,8 @@ Throughout the design and implementation of this application, I gained hands-on 
 
 ### 1. Prerequisites
 - **Python 3.10+**
-- **PostgreSQL** (running locally or remotely)
+- **Neon PostgreSQL** database account (or cloud/local PostgreSQL instance)
+- **Render** account (for cloud deployment)
 
 ### 2. Clone and Setup Environment
 ```bash
@@ -246,13 +249,18 @@ source fastapienv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Database Configuration
-Ensure PostgreSQL is running and update `database.py` with your database credentials if different:
-```python
-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg://postgres:<PASSWORD>@localhost:5432/TODOapp"
+### 3. Database Configuration & Environment Variables
+The application connects to the database via the `DATABASE_URL` environment variable loaded using `python-dotenv`.
+
+Create a `.env` file in the project root:
+```env
+DATABASE_URL=postgresql+psycopg://<USER>:<PASSWORD>@<NEON_HOST>/<DB_NAME>?sslmode=require
 ```
 
-### 4. Run the Application
+> [!WARNING]
+> The `.env` file contains sensitive database credentials. It is included in `.gitignore` and must **never** be committed to version control.
+
+### 4. Run Locally
 Start the development server using Uvicorn:
 ```bash
 uvicorn main:app --reload
@@ -261,6 +269,14 @@ Once running:
 - **Interactive Swagger UI**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - **ReDoc Documentation**: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 - **Web App**: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+
+### 5. Deployment Setup (Render & Neon)
+- **Database (Neon)**: Provision a serverless PostgreSQL database on [Neon](https://neon.tech/) and copy the provided connection string.
+- **Web Service (Render)**:
+  1. Create a new **Web Service** on [Render](https://render.com/) pointing to your repository.
+  2. Set **Build Command**: `pip install -r requirements.txt`.
+  3. Set **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`.
+  4. In the **Environment Variables** tab, add `DATABASE_URL` with your Neon PostgreSQL connection string.
 
 ---
 
@@ -289,12 +305,14 @@ The automated test suite provides coverage across:
 
 ---
 
-
 ## 📦 Tech Stack
 - **Framework**: [FastAPI](https://fastapi.tiangolo.com/)
 - **Server**: [Uvicorn](https://www.uvicorn.org/)
+- **Cloud Database**: [PostgreSQL](https://www.postgresql.org/) (hosted on [Neon](https://neon.tech/))
+- **Deployment Platform**: [Render](https://render.com/)
 - **ORM**: [SQLAlchemy 2.0](https://www.sqlalchemy.org/)
 - **Database Driver**: [psycopg 3](https://www.psycopg.org/)
+- **Environment Management**: [python-dotenv](https://github.com/theskumar/python-dotenv)
 - **Validation**: [Pydantic v2](https://docs.pydantic.dev/)
 - **Security**: [python-jose](https://github.com/mpdavy/python-jose), [Passlib (bcrypt)](https://passlib.readthedocs.io/)
 - **Testing**: [pytest](https://docs.pytest.org/), [HTTPX / TestClient](https://www.python-httpx.org/)
